@@ -1,12 +1,15 @@
 /* Libs */
 import path from "path";
 import { promises as fs } from "fs";
-import logger from "../logger";
+import logger from "loglevel";
 
-/* Local */
+/* Errors */
 import { RESOLVE_ERROR, INVALID_CONFIG, INVALID_PACKAGES } from "./error";
+
+/* Static Values */
 import { PACKAGE_JSON_KEY, PACKAGE_JSON_VALID_CONFIG_SCHEME } from "./const";
 
+/* Types */
 export interface IConfig {
   packages: string[];
 }
@@ -42,7 +45,7 @@ const tryUsingPackageJson = async (): Promise<IConfig> => {
 
   // check if packages are valid
   for (const pkg of config.packages) {
-    logger.log(`package - ${pkg}`);
+    logger.debug(`package - ${pkg}`);
     try {
       await fs.stat(pkg);
     } catch (error) {

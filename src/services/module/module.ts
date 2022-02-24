@@ -1,11 +1,15 @@
-import { toPackageJsonGlobPattern } from "./util";
+/* Libs */
 import { promisify } from "util";
 import glob from "glob";
+import logger from "loglevel";
 const asyncGlob = promisify(glob);
+
+/* Local */
+import { toPackageJsonGlobPattern } from "./util";
 import { parseModuleFromPackageJson } from "./parser";
+
+/* Types */
 import { IModule } from "./interface";
-import logger from "../logger";
-import { Mode } from "../../enum";
 
 /**
  *
@@ -14,7 +18,7 @@ import { Mode } from "../../enum";
 const resolveAndFlatModuleTree = async (
   packages: string[]
 ): Promise<IModule[]> => {
-  logger.log(`running on packages ${JSON.stringify(packages)}`);
+  logger.debug(`running on packages ${JSON.stringify(packages)}`);
   return Promise.all(packages.map(getModules)).then((packages) =>
     packages.flat()
   );
@@ -27,7 +31,7 @@ const resolveAndFlatModuleTree = async (
  * @param folderPath the folder path to search modules in
  */
 const getModules = async (folderPath: string): Promise<IModule[]> => {
-  logger.log(`folder path - ${folderPath}`);
+  logger.debug(`folder path - ${folderPath}`);
   const globPath = toPackageJsonGlobPattern(folderPath);
   const filePaths = await asyncGlob(globPath);
 
@@ -36,7 +40,7 @@ const getModules = async (folderPath: string): Promise<IModule[]> => {
   const filteredFilePaths = filePaths.filter(
     (path) => !path.includes("node_modules")
   );
-  logger.log(`found file paths - ${JSON.stringify(filteredFilePaths)}`);
+  logger.debug(`found file paths - ${JSON.stringify(filteredFilePaths)}`);
   return Promise.all(
     filteredFilePaths.map((module) => parseModuleFromPackageJson(module))
   );
