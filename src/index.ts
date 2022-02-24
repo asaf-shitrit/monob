@@ -1,14 +1,12 @@
 #!/usr/bin/env node
 
+/* Local Libs */
 import { main } from "./monob";
-import { flags } from "./cli";
-import { Mode } from "./enum";
-import logger from "./services/logger";
+import { parseFlags, CliFlags } from "./cli";
 
-// get running mode from the process env NODE_ENV
-// flag.
-// TODO: add arg to override the running mode
-const mode = process.env.NODE_ENV === "production" ? Mode.Production : Mode.Dev;
+/* External Libs */
+import logger from "loglevel";
+import { Mode } from "./enum";
 
 /**
  * the startup function of the tool,
@@ -16,14 +14,20 @@ const mode = process.env.NODE_ENV === "production" ? Mode.Production : Mode.Dev;
  * to the main routine, while catching any error
  * that it throws.
  */
-const run = async () => {
+const run = async (flags: CliFlags = parseFlags()) => {
+  // infer mode from free-text flag
+  let mode = Mode.Development;
+  if (flags.mode === "production") {
+    mode = Mode.Production;
+  }
+
   try {
     await main({
-      ...flags,
+      verbose: flags.verbose,
       mode,
     });
   } catch (error) {
-    logger.log(`Error occured - ${error.message}`);
+    logger.error(`Error occured - ${error.message}`);
   }
 };
 run();
